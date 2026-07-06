@@ -1,0 +1,148 @@
+cabal-version:      3.0
+name:               SE3-Geodesic-Kernel
+version:            1.0.0.0
+synopsis:           Hardware-accelerated SE(3) geodesic flow controller with Ricci-flat manifolds
+description:
+  A high-precision 32-bit fixed-point implementation of geodesic flow dynamics on
+  SE(3) Lie groups. Provides both floating-point playground simulation and
+  hardware-synthesizable Clash kernels for FPGA/ASIC deployment.
+
+license:            MIT
+license-file:       LICENSE
+author:             Kernel Development Team
+maintainer:         dev@geodesic-kernel.local
+category:           Physics, Geometry, Hardware
+homepage:           https://github.com/geodesic-kernel/SE3
+bug-reports:        https://github.com/geodesic-kernel/SE3/issues
+
+common warnings
+    ghc-options: -Wall -Wcompat -Wincomplete-record-updates
+                 -Wincomplete-uni-patterns -Wredundant-constraints
+                 -fno-warn-unused-do-bind
+
+library
+    import:           warnings
+    exposed-modules:
+        Kernel.Core
+        Kernel.FixedPoint
+        Kernel.DualQuaternion
+        Kernel.Manifold
+        Kernel.Geodesic
+        Kernel.Consensus
+        Kernel.Error
+        Sim.Playground
+        Sim.Physics
+
+    other-modules:
+        Kernel.Internal.Arithmetic
+        Kernel.Internal.Validation
+
+    hs-source-dirs:   src
+    default-language: Haskell2010
+    ghc-options:      -O2 -threaded
+
+    build-depends:
+        base                 >=4.16 && <5,
+        array                >=0.5.4,
+        containers           >=0.6.4,
+        deepseq              >=1.4.5,
+        vector               >=0.12.3,
+        bytestring           >=0.11,
+        aeson                >=2.0,
+        text                 >=1.2.4,
+        scientific           >=0.3.7,
+        mtl                  >=2.2.2,
+        transformers         >=0.5.6,
+        random               >=1.2.0,
+        filepath             >=1.4.2,
+        directory            >=1.3.6,
+        time                 >=1.9.3,
+        process              >=1.6.13
+
+    if impl(ghc >= 9.0)
+        build-depends: base-compat >= 0.12
+
+executable playground
+    import:           warnings
+    main-is:          Main.hs
+    hs-source-dirs:   playground
+    default-language: Haskell2010
+    ghc-options:      -O2 -threaded -rtsopts -with-rtsopts=-N
+
+    build-depends:
+        base                 >=4.16,
+        SE3-Geodesic-Kernel,
+        aeson                >=2.0,
+        bytestring           >=0.11,
+        text                 >=1.2,
+        vector               >=0.12,
+        random               >=1.2
+
+test-suite unit-tests
+    import:           warnings
+    type:             exitcode-stdio-1.0
+    main-is:          Main.hs
+    hs-source-dirs:   test/unit
+    default-language: Haskell2010
+    ghc-options:      -O2 -threaded -rtsopts
+
+    other-modules:
+        Test.DualQuaternion
+        Test.FixedPoint
+        Test.Manifold
+        Test.Geodesic
+        Test.Consensus
+        Test.Properties
+
+    build-depends:
+        base                 >=4.16,
+        SE3-Geodesic-Kernel,
+        tasty                >=1.4,
+        tasty-hunit          >=0.10,
+        tasty-quickcheck     >=0.10,
+        QuickCheck           >=2.14,
+        vector               >=0.12,
+        random               >=1.2,
+        mtl                  >=2.2
+
+test-suite integration-tests
+    import:           warnings
+    type:             exitcode-stdio-1.0
+    main-is:          Main.hs
+    hs-source-dirs:   test/integration
+    default-language: Haskell2010
+    ghc-options:      -O2 -threaded
+
+    other-modules:
+        Test.Simulation
+        Test.HardwareEmulation
+        Test.Convergence
+
+    build-depends:
+        base                 >=4.16,
+        SE3-Geodesic-Kernel,
+        tasty                >=1.4,
+        tasty-hunit          >=0.10,
+        vector               >=0.12,
+        aeson                >=2.0,
+        bytestring           >=0.11,
+        filepath             >=1.4
+
+benchmark performance
+    import:           warnings
+    type:             exitcode-stdio-1.0
+    main-is:          Main.hs
+    hs-source-dirs:   bench
+    default-language: Haskell2010
+    ghc-options:      -O2 -threaded -rtsopts
+
+    other-modules:
+        Bench.Arithmetic
+        Bench.DualQuaternion
+        Bench.Manifold
+
+    build-depends:
+        base                 >=4.16,
+        SE3-Geodesic-Kernel,
+        criterion            >=1.5,
+        vector               >=0.12

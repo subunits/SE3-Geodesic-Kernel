@@ -1,21 +1,6 @@
 resolver: lts-21.21
-
 packages:
 - .
-
-extra-deps:
-  - clash-prelude-1.8.1
-  - clash-lib-1.8.1
-  - clash-ghc-1.8.1
-
+extra-deps: []
 ghc-options:
   "$everything": -O2 -threaded
-
-flags:
-  clash-prelude:
-    super-errors: false
-
-snapshot-file: stack-lts.yaml
-
-nix:
-  enable: false
